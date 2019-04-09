@@ -1,0 +1,27 @@
+import pandas as pd
+df = pd.DataFrame(data = [('Ana','女','漂亮'),
+                          ('Bob','男','帅'),
+                          ('Com','男','酷'),
+                         ('Com','男','酷'),
+                         ('Com','男','酷')],columns = ['姓名','性别','特点'])
+#df1 = pd.DataFrame(df['性别'].unique(),columns = ['性别'])
+#df1 = df1.reset_index()
+#print(df1)
+#df1['index'] = df1['index'].map(str)
+#
+def get_dict(series_x):
+    df_midd_0 = pd.DataFrame()
+    df_midd_0 = pd.DataFrame(series_x.unique(),columns = ['test'])
+    df_midd_0 = df_midd_0.reset_index()
+    df_midd_0 = df_midd_0.applymap(str)
+    df_midd_1 = pd.DataFrame()
+    df_midd_1['dict'] = '\''+df_midd_0['test']+'\':\''+df_midd_0['index']+'\','
+    result = r'{'+df_midd_1['dict'].sum()[:-1] + r'}'
+    del df_midd_0,df_midd_1
+    mydict=eval(result)
+    series_x = series_x.map(mydict)
+    return mydict,series_x
+a = df['特点']
+b,c = get_dict(a)
+print(type(c))
+print(c,b)
