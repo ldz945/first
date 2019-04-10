@@ -1,0 +1,76 @@
+import pymongo
+import pandas as pd
+import re 
+client = pymongo.MongoClient('mongodb://hostlocal:27019/')
+db = client.admin
+mycol = db.tjy_base_info_report
+df = pd.DataFrame(list(mycol.find({},{"param.addInfo.contacts.phone_list":0,
+                    "param.addInfo.mobile":0,
+                    "param.addInfo.contacts.call_log":0})))
+df1 = pd.DataFrame()
+df1['0_userId'] = df['userId']
+#applyDetail
+def applyDetail(x):
+    try:
+        y = re.findall('applyDetail(.*?)orderInfo',str(x))[0]
+    except:
+        y = 'null'
+    return y
+
+def orderInfo(x):
+    try:
+        y = re.findall('orderInfo(.*?)addInfo',str(x))[0]
+    except:
+        y = 'null'
+    return y
+
+def addInfo(x):
+    try:
+        y = re.findall('contacts(.*?)id(.*?)$',str(x))[0]
+    except:
+        y = 'null'
+    return y
+
+df['applyDetail'] = df['param'].map(applyDetail)
+df['orderInfo'] = df['param'].map(orderInfo)
+df['addInfo'] = df['param'].map(addInfo)
+#df1['applyDetail_user_id'] = df['applyDetail'].str.findall('user_id\': \'(.*?)\'')
+def get_json_data(columns,key_words,series):
+    for i in range(len(columns)):
+        def get_data(x):
+            b = '\''+str(key_words[i])+'\': \'?(.*?)\'?[,}]'
+            try:
+                y = re.findall(b,str(x))[0]
+                #y = re.search(b,str(x)).group(1)
+            except:
+                y = 'null'
+            return y
+        df1[columns[i]] = series.map(get_data)
+    return df1
+columns1 = ['applyDetail_user_id']
+key_words1 = ['user_id']
+get_json_data(columns1,key_words1,df['applyDetail'])
+columns2 = ['orderInfo_id','orderInfo_user_id']
+key_words2 = ['id','user_id']
+get_json_data(columns2,key_words2,df['orderInfo'])
+columns3 = ['addInfo_id']
+key_words3 = ['id']
+get_json_data(columns3,key_words3,df['addInfo'])
+columns4 = ['platform', 'work_period', 'asset_auto_type', 'tele_name', 
+'user_social_security', 'phone_number_house', 'device_num', 'gps_location', 'tele_num', 
+'device_info', 'GPS_Address', 'max_monthly_repayment', 'user_education', 'is_op_type', 
+'user_income_by_card', 'ip_address', 'bureau_user_name', 'phone_brand', 'register_time', 'product_id', 'status', 'order_No','city', 'product','user_name', 'order_time', 'user_mobile', 'bank', 
+'user_group_id','uid', 'address', 
+'address', 'lat', 'lon','delete_time', 'installed_apps',
+'installed_apps_version','update_time', 'app_location_json', 'call_log', 
+'create_time', 'asyncZhima']
+key_words4 = ['platform', 'work_period', 'asset_auto_type', 'tele_name', 
+'user_social_security', 'phone_number_house', 'device_num', 'gps_location', 'tele_num', 
+'device_info', 'GPS_Address', 'max_monthly_repayment', 'user_education', 'is_op_type', 
+'user_income_by_card', 'ip_address', 'bureau_user_name', 'phone_brand', 'register_time', 'product_id', 'status', 'order_No','city', 'product','user_name', 'order_time', 'user_mobile', 'bank', 
+'user_group_id','uid', 'address', 
+'address', 'lat', 'lon','delete_time', 'installed_apps',
+'installed_apps_version','update_time', 'app_location_json', 'call_log', 
+'create_time', 'asyncZhima']
+get_json_data(columns4,key_words4,df['param'])
+df1.to_excel('tjy_base_info_report_all_final_clean.xlsx')
