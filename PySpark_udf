@@ -12,10 +12,10 @@ df.select('name').groupby('name').count().show()
 def first_udf(x):
     return x+10
 first_udf = udf(first_udf)
-for column in df.columns:
-    print(column)
+
 df.select('name',first_udf(col('age')).alias('age1')).show()
 df.printSchema()
+
 @pandas_udf("long", PandasUDFType.GROUPED_AGG)
 def second_udf(v):
     return v.count()
