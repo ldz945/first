@@ -1,0 +1,28 @@
+import pymongo
+import pandas as pd
+client = pymongo.MongoClient('mongodb://192.168.1.101:27017/')
+db = client.test4
+collection = db.phone
+df = pd.DataFrame(list(collection.find()))
+df1 = pd.DataFrame(df,columns=['id','brand','ram','price'])
+print(df1)
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql import SQLContext
+
+spark = SparkSession\
+        .builder\
+        .appName("testDataFrame")\
+        .getOrCreate()
+
+df_spark = spark.createDataFrame(df1)
+df_spark.show()
+
+
+from pyspark.sql import HiveContext
+hive_context = HiveContext(sc)
+hive_context.sql('use guo')
+df_spark.registerTempTable("tempTable")
+hive_context.sql('insert into phone select * from tempTable')
+hive_context.sql('select * from phone').show()
