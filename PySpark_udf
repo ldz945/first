@@ -9,7 +9,7 @@ spark = SparkSession \
 df = spark.read.json('/media/sf_test/test.json')
 
 df.select('name').groupby('name').count().show()
-def first_udf(x):
+def first_udf(x):#可以多函数应用
     return x+10
 first_udf = udf(first_udf)
 
